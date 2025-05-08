@@ -11,20 +11,16 @@ from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
-# Initialize Flask App and SocketIO
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-# API Keys & Configurations
 GROQ_API="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"
 ASTRA_DB_API_ENDPOINT="https://391053c3-80de-4556-804f-ac36bd33880e-us-east-2.apps.astra.datastax.com"
 ASTRA_DB_APPLICATION_TOKEN="AstraCS:EcTQwkfFJNxNgePhOuKnpmhH:73a9bb7baa08cba901227e7ed675912710c6309e713d23b8e438df54c16557bf"
 ASTRA_DB_KEYSPACE="default_keyspace"
 HUGFA_TOKEN="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"
-# Load Embeddings
 embeddings = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
 
-# Initialize AstraDB Vector Store
 vec_store = AstraDBVectorStore(
     embedding=embeddings,
     collection_name="MotherWell_BOT",
@@ -33,10 +29,8 @@ vec_store = AstraDBVectorStore(
     namespace=ASTRA_DB_KEYSPACE
 )
 
-# Load AI Model (Groq - LLaMA)
 model = ChatGroq(groq_api_key=GROQ_API, model_name="llama-3.1-8b-instant", temperature=0.5)
 
-# Handle Chat History
 store = {}
 
 def get_session_history(session_id: str) -> BaseChatMessageHistory:
@@ -44,7 +38,6 @@ def get_session_history(session_id: str) -> BaseChatMessageHistory:
         store[session_id] = ChatMessageHistory()
     return store[session_id]
 
-# Prompt Template for Responses
 MOTHERWELL_BOT_TEMPLATE = """
     Your bot, MotherWell Bot, is an expert in pregnancy-related queries, providing guidance on prenatal care,
     common pregnancy concerns, and home remedies for symptom relief.
@@ -68,7 +61,6 @@ qa_prompt = ChatPromptTemplate.from_messages(
     ]
 )
 
-# History-Aware Retrieval
 retriever_prompt = (
     "Given a chat history and the latest user question, reframe the question as a complete, standalone pregnancy-related query."
 )
